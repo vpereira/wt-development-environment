@@ -1,0 +1,43 @@
+version: '3'
+services:
+  ganache:
+    image: trufflesuite/ganache-cli:latest
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./ganache_data:/ganache_data
+    entrypoint:
+      - node
+      - /app/ganache-core.docker.cli.js
+      - --deterministic
+      - --db=/ganache_data
+      - --networkId
+      - '77'
+      - --mnemonic
+      - --gasLimit
+      - '0xfffffffffff'
+      - --account=0xe8280389ca1303a2712a874707fdd5d8ae0437fab9918f845d26fd9919af5a92,10000000000000000000000000000000000000000000000000000000000000000000000000000000
+      - --account=0xa4605db83bb3e663f33fb92542ca38344bd8d1bf2d07cc6cc908fec87b7674d5,10000000000000000000000000000000000000000000000000000000000000000000000000000000
+      - --account=0x4259ac86777aa87b3e24006fe6bc98a9c726c3618b18541716a8acc1a7161fa2,10000000000000000000000000000000000000000000000000000000000000000000000000000000
+      - --hostname
+      - '0.0.0.0'
+      - --debug    
+  wt-read-api:
+    image: windingtree/wt-read-api
+    ports:
+      - "8081:3000"
+    environment: 
+      - ETH_NETWORK_PROVIDER=http://ganache:8545
+      - WT_CONFIG=playground
+    depends_on:
+      - ganache
+      
+  wt-write-api:
+    image: windingtree/wt-write-api
+    ports:
+      - "8080:8080"
+    environment: 
+      - ETH_NETWORK_PROVIDER=http://ganache:8545
+      - WT_CONFIG=playground
+    depends_on:
+      - ganache
